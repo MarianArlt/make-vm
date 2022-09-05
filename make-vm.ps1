@@ -6,6 +6,12 @@ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Publ
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 #>
 
+$session = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (!$session.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host -ForegroundColor Red "This script requires administrative privileges.`nExiting."
+    return
+}
+
 # GUI to choose base path
 function PickFolder {
     param (
@@ -97,7 +103,7 @@ function PickSwitch {
 $verbose_color = "White"
 $success_color = "Green"
 
-Write-Host "`n`n    Create a virtual machine for use with Hyper-V.`n    The executing user needs to have administrative privileges.`n    Defaults can be accepted by pressing [ENTER]`n    Copyright 2022, Marian Arlt, All rights reserved`n`n"
+Write-Host "`n`n    Create a virtual machine for use with Hyper-V`n    Defaults can be accepted by pressing [ENTER]`n    Copyright 2022, Marian Arlt, All rights reserved`n`n"
 
 # Create parameter array
 $parameters = @{}
