@@ -166,7 +166,6 @@ Write-Host -ForegroundColor $verbose_color "> The new machine will be of generat
 
 if (!$accept_defaults) {
     # Prompt for RAM size
-    # TODO: prompt for dynamic RAM
     $memory = Read-Host "`nDefine RAM size (Default: 2GB)"
 }
 if (!$memory) {
