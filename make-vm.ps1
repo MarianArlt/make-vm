@@ -166,6 +166,7 @@ Write-Host -ForegroundColor $verbose_color "> The new machine will be of generat
 
 if (!$accept_defaults) {
     # Prompt for RAM size
+    # TODO: prompt for dynamic RAM
     $memory = Read-Host "`nDefine RAM size (Default: 2GB)"
 }
 if (!$memory) {
@@ -225,6 +226,15 @@ if (!$accept_defaults) {
 if ($secure_boot -like "Y*") {
     Set-VMFirmware -VMName $vm_name -EnableSecureBoot Off
     Write-Host -ForegroundColor $verbose_color "> Secure boot was disabled on $vm_name."
+}
+
+if (!$accept_defaults) {
+    # Prompt for dynamic memory
+    $dynamic_ram = Read-Host "`nDo you want to disable dynamic memory? ([Y]es/[N]o Default: N)"
+}
+if ($dynamic_ram -like "Y*") {
+    Set-VMMemory -VMName $vm_name -DynamicMemoryEnabled $false
+    Write-Host -ForegroundColor $verbose_color "> Dynamic Memory was disabled on $vm_name."
 }
 
 if (!$accept_defaults) {
