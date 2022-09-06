@@ -135,8 +135,8 @@ if (!$accept_defaults) {
     $lowest_supported_config_version = (Get-VMHostSupportedVersion | Select-Object -First 1).Version.Major
     $config_version = Read-Host "`nDo you want to create this machine for an earlier version of Hyper-V?`nLowest supported version on this host is config version $lowest_supported_config_version (Default: $default_host_config_version)"
     if ($config_version) {
-        while (([int]$config_version -lt $lowest_supported_config_version) -or ([int]$config_version -gt $default_host_config_version)) {
-            $config_version = Read-Host "`nYou must choose a config version from $lowest_supported_config_version through $default_host_config_version (Default: 10)"
+        while ($config_version -notin $lowest_supported_config_version..$default_host_config_version) {
+            $config_version = Read-Host "`nYou must choose a config version from $lowest_supported_config_version through $default_host_config_version (Default: $default_host_config_version)"
             if (!$config_version) {
                 break
             }
@@ -151,7 +151,7 @@ Write-Host -ForegroundColor $verbose_color "> $vm_name will be of config version
 
 if (!$accept_defaults) {
     # Prompt for generation
-    while (!($generation -eq 1) -or !($generation -eq 2)) {
+    while ($generation -notin 1..2) {
         $generation = Read-Host "`nChoose generation 1 or 2 (Default: 2)"
         if (!$generation) {
             break
