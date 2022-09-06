@@ -108,6 +108,8 @@ Write-Host "`n`n    Create a virtual machine for use with Hyper-V`n    Defaults 
 # Create parameter array
 $parameters = @{}
 
+#TODO: offer to load previously saved configuration file
+
 # Prompt for config options
 $accept_defaults = Read-Host "Do you want to skip configurations that have default values? ([Y]es/[N]o Default: N)"
 if ($accept_defaults -like "N*") {
@@ -232,3 +234,5 @@ if (!$accept_defaults) {
         Write-Host "> Goodbye.`n"
     }
 }
+
+#TODO: offer to save this configuration in a file for later use
