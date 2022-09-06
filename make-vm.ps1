@@ -129,9 +129,9 @@ if (!$vm_base_path) {
 $parameters.Add("Path", $vm_base_path)
 Write-Host -ForegroundColor $verbose_color "> The new machine will be saved in $vm_base_path."
 
+$default_host_config_version = (Get-VMHostSupportedVersion -Default).Version.Major
 if (!$accept_defaults) {
     # Prompt for config version
-    $default_host_config_version = (Get-VMHostSupportedVersion -Default).Version.Major
     $lowest_supported_config_version = (Get-VMHostSupportedVersion | Select-Object -First 1).Version.Major
     $config_version = Read-Host "`nDo you want to create this machine for an earlier version of Hyper-V?`nLowest supported version on this host is config version $lowest_supported_config_version (Default: $default_host_config_version)"
     if ($config_version) {
