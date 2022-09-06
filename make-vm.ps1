@@ -210,11 +210,11 @@ Set-VM -Name $vm_name -ProcessorCount $cores
 Write-Host -ForegroundColor $verbose_color "> $vm_name was assigned $cores cores."
 
 if (!$accept_defaults) {
-    $snapshots = Read-Host "`nDo you want to disable automatic snapshots? ([Y]es/[N]o Default: Y)"
+    $snapshots = Read-Host "`nDo you want to disable snapshots? ([Y]es/[N]o Default: Y)"
 }
 if (!$snapshots -or $snapshots -like "Y*") {
-    Set-VM -Name $vm_name -AutomaticCheckpointsEnabled $false
-    Write-Host -ForegroundColor $verbose_color "> Automatic snapshots were disabled on $vm_name.`n"
+    Set-VM -Name $vm_name -CheckpointType Disabled
+    Write-Host -ForegroundColor $verbose_color "> Snapshots were disabled on $vm_name.`n"
 }
 
 if (!$accept_defaults) {
