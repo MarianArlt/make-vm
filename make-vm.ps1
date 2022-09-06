@@ -110,18 +110,20 @@ $parameters = @{}
 
 #TODO: offer to load previously saved configuration file
 
-# Prompt for config options
+# Prompt to skip defaults
 $accept_defaults = Read-Host "Do you want to skip configurations that have default values? ([Y]es/[N]o Default: N)"
 if ($accept_defaults -like "N*") {
     $accept_defaults = $false
 }
 
+# Prompt for name
 while (!$vm_name) {
     $vm_name = Read-Host "Name your machine"
 }
 $parameters.Add("Name", $vm_name)
 Write-Host -ForegroundColor $verbose_color "> The new machine will be called $vm_name."
 
+# Prompt for path
 $vm_base_path = Read-Host "`nPress [ENTER] to choose the base folder for the VM or type a path"
 if (!$vm_base_path) {
     $vm_base_path = PickFolder -Object System.Windows.Forms.FolderBrowserDialog
@@ -130,7 +132,28 @@ $parameters.Add("Path", $vm_base_path)
 Write-Host -ForegroundColor $verbose_color "> The new machine will be saved in $vm_base_path."
 
 if (!$accept_defaults) {
-    while (!($generation -eq 1) -or (!$generation -eq 2)) {
+    # Prompt for config version
+    $default_host_config_version = (Get-VMHostSupportedVersion -Default).Version.Major
+    $lowest_supported_config_version = (Get-VMHostSupportedVersion | Select-Object -First 1).Version.Major
+    $config_version = Read-Host "`nDo you want to create this machine for an earlier version of Hyper-V?`nLowest supported version on this host is config version $lowest_supported_config_version (Default: $default_host_config_version)"
+    if ($config_version) {
+        while (([int]$config_version -lt $lowest_supported_config_version) -or ([int]$config_version -gt $default_host_config_version)) {
+            $config_version = Read-Host "`nYou must choose a config version from $lowest_supported_config_version through $default_host_config_version (Default: 10)"
+            if (!$config_version) {
+                break
+            }
+        }
+        $parameters.Add("Version", "$config_version.0")
+    }
+}
+if (!$config_version) {
+    $config_version = $default_host_config_version
+}
+Write-Host -ForegroundColor $verbose_color "> $vm_name will be of config version $config_version."
+
+if (!$accept_defaults) {
+    # Prompt for generation
+    while (!($generation -eq 1) -or !($generation -eq 2)) {
         $generation = Read-Host "`nChoose generation 1 or 2 (Default: 2)"
         if (!$generation) {
             break
@@ -144,6 +167,7 @@ $parameters.Add("Generation", $generation)
 Write-Host -ForegroundColor $verbose_color "> The new machine will be of generation $generation."
 
 if (!$accept_defaults) {
+    # Prompt for RAM size
     $memory = Read-Host "`nDefine RAM size (Default: 2GB)"
 }
 if (!$memory) {
@@ -155,6 +179,7 @@ Write-Host -ForegroundColor $verbose_color "> The new machine will have $memory 
 $vm_switch = Get-VMSwitch -SwitchType External
 $vm_switch_name = $vm_switch.Name
 if (!$accept_defaults) {
+    # Prompt for NIC
     $switch_choice = Read-Host "`nDo you want to use $vm_switch_name with this machine? ([Y]es/[N]o/[P]ick Default: Y)"
 }
 if ($switch_choice -like "N*") {
@@ -169,6 +194,7 @@ if ($switch_choice -like "N*") {
 }
 
 if (!$accept_defaults) {
+    # Prompt for disk
     $disk_choice = Read-Host "`nDo you want to create a new disk for this machine? ([Y]es/[N]o Default: Y)"
 }
 if ($disk_choice -like "N*") {
@@ -195,6 +221,7 @@ if ($?) {
 
 # Configure VM
 if (!$accept_defaults) {
+    # Prompt for secure boot
     $secure_boot = Read-Host "`nDo you want to disable secure boot? ([Y]es/[N]o Default: N)"
 }
 if ($secure_boot -like "Y*") {
@@ -203,6 +230,7 @@ if ($secure_boot -like "Y*") {
 }
 
 if (!$accept_defaults) {
+    # Prompt for CPU count
     $cores = Read-Host "`nDo you want to increase core count? (Default: 2)"
 }
 if (!$cores) {
@@ -212,6 +240,7 @@ Set-VM -Name $vm_name -ProcessorCount $cores
 Write-Host -ForegroundColor $verbose_color "> $vm_name was assigned $cores cores."
 
 if (!$accept_defaults) {
+    # Prompt for Snapshots
     $snapshots = Read-Host "`nDo you want to disable snapshots? ([Y]es/[N]o Default: Y)"
 }
 if (!$snapshots -or $snapshots -like "Y*") {
@@ -220,6 +249,7 @@ if (!$snapshots -or $snapshots -like "Y*") {
 }
 
 if (!$accept_defaults) {
+    # Prompt for ISO
     $iso_choice = Read-Host "Do you want to add an ISO to this machine? ([Y]es/[N]o Default: N)"
     if ($iso_choice -like "Y*") {
         $iso_path = Read-Host "Press [ENTER] to choose a file or type a path"
